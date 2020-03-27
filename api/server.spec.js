@@ -27,12 +27,59 @@ describe("To assure Server is alive", function() {
   });
 });
 
+const username = "faby" +new Date().toString();
 describe("To assure register is alive", function() {
-  describe("POST /register", function() {
-    it("should return 200 OK", function() {
+  describe("POST /register should", function() {
+    it("return User object if req is successful", function() {      
       return request(server)
-        .get("/register")
-        .expect(200);
+        .post("/api/auth/register")
+        .send({
+            username: username,
+            password: "12345"
+        })
+        .expect(200)
+        .then((res) => {
+            expect(res.body.username).toBe(username);
+        });
+    });
+  });
+  describe("POST /register should", function() {
+    it("return error if username is not unique", function() {      
+      return request(server)
+        .post("/api/auth/register")
+        .send({
+            username: username,
+            password: "12345"
+        })
+        .expect(500);
     });
   });
 });
+
+describe("To assure login is alive", function() {
+    describe("POST /login", function() {
+      it("should return welcome message when logged in", function() {      
+        return request(server)
+          .post("/api/auth/login")
+          .send({
+              username: username,
+              password: "12345"
+          })
+          .expect(200)
+          .then((res) => {
+              expect(res.body.message).toBe(`Welcome ${username}`);
+          });
+      });
+    });
+    describe("POST /login returns error if username is not unique", function() {
+      it("should return error if the password is wrong", function() {      
+        return request(server)
+          .post("/api/auth/login")
+          .send({
+              username: username,
+              password: "123456"
+          })
+          .expect(500);
+      });
+    });
+  });
